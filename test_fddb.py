@@ -17,7 +17,7 @@ parser = argparse.ArgumentParser(description='Retinaface')
 parser.add_argument('-m', '--trained_model', default='./weights/mobilenet0.25_Final.pth',
                     type=str, help='Trained state_dict file path to open')
 parser.add_argument('--network', default='mobile0.25', help='Backbone network mobile0.25 or resnet50')
-parser.add_argument('--save_folder', default='eval/', type=str, help='Dir to save results')
+parser.add_argument('--save_folder', default='fddb_evaluate/', type=str, help='Dir to save results')
 parser.add_argument('--cpu', action="store_true", default=False, help='Use cpu inference')
 parser.add_argument('--dataset', default='FDDB', type=str, choices=['FDDB'], help='dataset')
 parser.add_argument('--confidence_threshold', default=0.02, type=float, help='confidence_threshold')
