@@ -257,7 +257,7 @@ def evaluation(pred, gt_path, iou_thresh=0.5):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--pred', default="./fddb_evaluation/")
+    parser.add_argument('-p', '--pred', default="./pred_sample/")
     parser.add_argument('-g', '--gt', default='./ground_truth/')
 
     args = parser.parse_args()
