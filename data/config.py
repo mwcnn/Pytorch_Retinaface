@@ -8,9 +8,9 @@ cfg_mnet = {
     'clip': False,
     'loc_weight': 2.0,
     'gpu_train': True,
-    'batch_size': 32,
-    'ngpu': 1,
-    'epoch': 250,
+    'batch_size': 8, #default = 32
+    'ngpu': 4, #default = 1
+    'epoch': 1, #default = 250
     'decay1': 190,
     'decay2': 220,
     'image_size': 640,
@@ -28,9 +28,9 @@ cfg_re50 = {
     'clip': False,
     'loc_weight': 2.0,
     'gpu_train': True,
-    'batch_size': 24,
-    'ngpu': 4,
-    'epoch': 100,
+    'batch_size': 8, #default = 24
+    'ngpu': 1, #default = 4
+    'epoch': 1, #default = 100
     'decay1': 70,
     'decay2': 90,
     'image_size': 840,
