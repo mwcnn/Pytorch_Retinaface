@@ -163,6 +163,6 @@ if __name__ == '__main__':
                 cv2.circle(img_raw, (b[13], b[14]), 1, (255, 0, 0), 4)
             # save image
 
-            name = "hasil_detection.jpg"
+            name = "/content/Pytorch_Retinaface/hasil-detection/test.jpg"
             cv2.imwrite(name, img_raw)
 
