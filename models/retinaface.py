@@ -6,8 +6,6 @@ import torch.nn.functional as F
 from collections import OrderedDict
 
 import torchvision.models._utils as _utils
-from models.ghostnet import GhostNet as GhostNet
-from models.mobilenetv3 import MobileNetV3 as MobileNetV3
 
 from models.net import MobileNetV1 as MobileNetV1
 from models.net import SSH as SSH
