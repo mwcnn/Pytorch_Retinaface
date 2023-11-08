@@ -5,6 +5,7 @@ import torchvision.models._utils as _utils
 import torchvision.models as models
 import torch.nn.functional as F
 from torch.autograd import Variable
+import models.DeFian as defian
 
 def conv_bn(inp, oup, stride = 1, leaky = 0):
     return nn.Sequential(
@@ -78,6 +79,7 @@ class FPN(nn.Module):
         self.merge1 = conv_bn(out_channels, out_channels, leaky = leaky)
         self.merge2 = conv_bn(out_channels, out_channels, leaky = leaky)
 
+        self.defian = defian.Generator(out_channels, 10, 5, act=nn.ReLU(True), attention=True, scale=[2])
     def forward(self, input):
         # names = list(input.keys())
         input = list(input.values())
@@ -94,7 +96,14 @@ class FPN(nn.Module):
         output1 = output1 + up2
         output1 = self.merge1(output1)
 
+        output1 = self.defian(output1)
+        output2 = self.defian(output2)
+        output3 = self.defian(output3)
+
         out = [output1, output2, output3]
+        # print(f"input 1: {input[0].shape}, output 1:{output1.shape}")
+        # print(f"input 2: {input[1].shape}, output 2:{output2.shape}")
+        # print(f"input 3: {input[2].shape}, output 3:{output3.shape}")
         return out
 
 
