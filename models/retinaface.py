@@ -77,7 +77,8 @@ class RetinaFace(nn.Module):
             in_channels_stage2 * 8,
         ]
         out_channels = cfg['out_channel']
-        self.fpn = FPN(in_channels_list,out_channels)
+        defian_layer = cfg['defian_layer']
+        self.fpn = FPN(in_channels_list,out_channels,defian_layer)
         self.ssh1 = SSH(out_channels, out_channels)
         self.ssh2 = SSH(out_channels, out_channels)
         self.ssh3 = SSH(out_channels, out_channels)

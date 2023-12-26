@@ -13,6 +13,7 @@ import numpy as np
 from scipy.io import loadmat
 from bbox import bbox_overlaps
 from IPython import embed
+import matplotlib.pyplot as plt
 
 
 def get_gt_boxes(gt_dir):
@@ -230,6 +231,8 @@ def evaluation(pred, gt_path, iou_thresh=0.5):
     facebox_list, event_list, file_list, hard_gt_list, medium_gt_list, easy_gt_list = get_gt_boxes(gt_path)
     event_num = len(event_list)
     thresh_num = 1000
+    precisions = {}
+    recalls = {}
     settings = ['easy', 'medium', 'hard']
     setting_gts = [easy_gt_list, medium_gt_list, hard_gt_list]
     aps = []
@@ -270,10 +273,31 @@ def evaluation(pred, gt_path, iou_thresh=0.5):
 
         propose = pr_curve[:, 0]
         recall = pr_curve[:, 1]
+        
+        precisions[settings[setting_id]] = propose
+        recalls[settings[setting_id]] = recall
 
         ap = voc_ap(recall, propose)
         aps.append(ap)
 
+    # Plotting and saving PR curves for each setting
+    for setting in settings:
+        recall = recalls[setting]
+        precision = precisions[setting]
+
+        plt.figure(figsize=(8, 6))
+        plt.plot(recall, precision, label=f'Precision-Recall Curve - {setting.capitalize()} Setting')
+
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.title(f'Precision-Recall Curve WiderFace - {setting.capitalize()} Setting')
+        plt.legend()
+        plt.grid(True)
+
+        # Save the PR curve plot as an image file
+        plt.savefig(f'pr_curve_{setting}.png')  # Save with different file names
+        plt.close()  # Close the plot to release memory resources
+    
     print("==================== Results ====================")
     print("Easy   Val AP: {}".format(aps[0]))
     print("Medium Val AP: {}".format(aps[1]))

@@ -67,7 +67,7 @@ class SSH(nn.Module):
         return out
 
 class FPN(nn.Module):
-    def __init__(self,in_channels_list,out_channels):
+    def __init__(self,in_channels_list,out_channels,defian_layer):
         super(FPN,self).__init__()
         leaky = 0
         if (out_channels <= 64):
@@ -78,36 +78,49 @@ class FPN(nn.Module):
 
         self.merge1 = conv_bn(out_channels, out_channels, leaky = leaky)
         self.merge2 = conv_bn(out_channels, out_channels, leaky = leaky)
-
+        
+        self.defian_layer = defian_layer
         self.defian = defian.Generator(out_channels, 10, 5, act=nn.ReLU(True), attention=True, scale=[2])
         
     def forward(self, input):
-        # names = list(input.keys())
-        input = list(input.values())
+        if self.defian_layer:
+            # names = list(input.keys())
+            input = list(input.values())
 
-        output1 = self.output1(input[0])
-        output2 = self.output2(input[1])
-        output3 = self.output3(input[2])
-        attn1 = self.defian(output3)
+            output1 = self.output1(input[0])
+            output2 = self.output2(input[1])
+            output3 = self.output3(input[2])
+            attn1 = self.defian(output3)
 
-        up3 = F.interpolate(attn1, size=[output2.size(2), output2.size(3)], mode="nearest")
-        output2 = output2 + up3
-        output2 = self.merge2(output2)
-        attn2 = self.defian(output2)
+            up3 = F.interpolate(attn1, size=[output2.size(2), output2.size(3)], mode="nearest")
+            output2 = output2 + up3
+            output2 = self.merge2(output2)
+            attn2 = self.defian(output2)
 
-        up2 = F.interpolate(attn2, size=[output1.size(2), output1.size(3)], mode="nearest")
-        output1 = output1 + up2
-        output1 = self.merge1(output1)
+            up2 = F.interpolate(attn2, size=[output1.size(2), output1.size(3)], mode="nearest")
+            output1 = output1 + up2
+            output1 = self.merge1(output1)
 
-        # output1 = self.defian(output1)
-        # output2 = self.defian(output2)
-        # output3 = self.defian(output3)
+            out = [output1, output2, output3]
+            return out
+        else:
+            # names = list(input.keys())
+            input = list(input.values())
 
-        out = [output1, output2, output3]
-        # print(f"input 1: {input[0].shape}, output 1:{output1.shape}")
-        # print(f"input 2: {input[1].shape}, output 2:{output2.shape}")
-        # print(f"input 3: {input[2].shape}, output 3:{output3.shape}")
-        return out
+            output1 = self.output1(input[0])
+            output2 = self.output2(input[1])
+            output3 = self.output3(input[2])
+
+            up3 = F.interpolate(output3, size=[output2.size(2), output2.size(3)], mode="nearest")
+            output2 = output2 + up3
+            output2 = self.merge2(output2)
+
+            up2 = F.interpolate(output2, size=[output1.size(2), output1.size(3)], mode="nearest")
+            output1 = output1 + up2
+            output1 = self.merge1(output1)
+
+            out = [output1, output2, output3]
+            return out
 
 class MobileNetV1(nn.Module):
     def __init__(self):
