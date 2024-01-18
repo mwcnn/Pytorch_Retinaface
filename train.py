@@ -5,7 +5,6 @@ import torch.optim as optim
 import torch.backends.cudnn as cudnn
 import argparse
 import torch.utils.data as data
-from torchsummary import summary
 from data import WiderFaceDetection, detection_collate, preproc, cfg_mnet, cfg_re50
 from layers.modules import MultiBoxLoss
 from layers.functions.prior_box import PriorBox
@@ -76,7 +75,11 @@ if num_gpu > 1 and gpu_train:
 else:
     net = net.cuda()
     
-summary(net, input_size=(3, 112, 112))
+total_params = sum(p.numel() for p in net.parameters())
+train_params = sum(p.numel() for p in net.parameters() if p.requires_grad)
+print(f"Total params: {total_params}")
+print(f"Trainable params: {train_params}")
+print("="*80)
 
 cudnn.benchmark = True
 
@@ -102,6 +105,8 @@ def train():
     stepvalues = (cfg['decay1'] * epoch_size, cfg['decay2'] * epoch_size)
     step_index = 0
 
+    print('Start Training...')
+    print("="*80)
     if args.resume_epoch > 0:
         start_iter = args.resume_epoch * epoch_size
     else:
