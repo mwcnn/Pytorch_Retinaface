@@ -5,6 +5,7 @@ import torch.optim as optim
 import torch.backends.cudnn as cudnn
 import argparse
 import torch.utils.data as data
+from torchsummary import summary
 from data import WiderFaceDetection, detection_collate, preproc, cfg_mnet, cfg_re50
 from layers.modules import MultiBoxLoss
 from layers.functions.prior_box import PriorBox
@@ -74,6 +75,8 @@ if num_gpu > 1 and gpu_train:
     net = torch.nn.DataParallel(net).cuda()
 else:
     net = net.cuda()
+    
+summary(net, input_size=(3, 112, 112))
 
 cudnn.benchmark = True
 
