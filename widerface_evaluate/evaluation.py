@@ -14,6 +14,7 @@ from scipy.io import loadmat
 from bbox import bbox_overlaps
 from IPython import embed
 import matplotlib.pyplot as plt
+import json
 
 
 def get_gt_boxes(gt_dir):
@@ -280,6 +281,16 @@ def evaluation(pred, gt_path, iou_thresh=0.5):
         ap = voc_ap(recall, propose)
         aps.append(ap)
 
+    converted_precisions = {k: v.tolist() for k, v in precisions.items()}
+    converted_recalls = {k: v.tolist() for k, v in recalls.items()}
+    data = {
+        "precisions": converted_precisions,
+        "recalls": converted_recalls
+    }
+
+    with open("widerface_pr.json", "w") as json_file:
+        json.dump(data, json_file)
+    
     # Plotting and saving PR curves for each setting
     for setting in settings:
         recall = recalls[setting]
