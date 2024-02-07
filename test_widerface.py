@@ -212,8 +212,9 @@ if __name__ == '__main__':
                 cv2.circle(img_raw, (b[11], b[12]), 1, (0, 255, 0), 4)
                 cv2.circle(img_raw, (b[13], b[14]), 1, (255, 0, 0), 4)
             # save image
-            if not os.path.exists("./results/"):
-                os.makedirs("./results/")
-            name = "./results/" + str(i) + ".jpg"
+            save_path = "./results/"
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
+            name = save_path + str(i) + ".jpg"
             cv2.imwrite(name, img_raw)
 
