@@ -80,47 +80,55 @@ class FPN(nn.Module):
         self.merge2 = conv_bn(out_channels, out_channels, leaky = leaky)
         
         self.defian_layer = defian_layer
-        self.defian = defian.Generator(out_channels, 10, 5, act=nn.ReLU(True), attention=True, scale=[2])
+        if self.defian_layer:
+            self.defian = defian.Generator(out_channels, 1, 1, act=nn.ReLU(True), attention=True, scale=[2])
+        else:
+            self.defian = self.dummy_function
+        
+    def dummy_function(self, x):
+        return x
         
     def forward(self, input):
-        if self.defian_layer:
-            # names = list(input.keys())
-            input = list(input.values())
+        # if self.defian_layer:
+        
+        # names = list(input.keys())
+        input = list(input.values())
 
-            output1 = self.output1(input[0])
-            output2 = self.output2(input[1])
-            output3 = self.output3(input[2])
-            attn1 = self.defian(output3)
+        output1 = self.output1(input[0])
+        output2 = self.output2(input[1])
+        output3 = self.output3(input[2])
+        attn1 = self.defian(output3)
 
-            up3 = F.interpolate(attn1, size=[output2.size(2), output2.size(3)], mode="nearest")
-            output2 = output2 + up3
-            output2 = self.merge2(output2)
-            attn2 = self.defian(output2)
+        up3 = F.interpolate(attn1, size=[output2.size(2), output2.size(3)], mode="nearest")
+        output2 = output2 + up3
+        output2 = self.merge2(output2)
+        attn2 = self.defian(output2)
 
-            up2 = F.interpolate(attn2, size=[output1.size(2), output1.size(3)], mode="nearest")
-            output1 = output1 + up2
-            output1 = self.merge1(output1)
+        up2 = F.interpolate(attn2, size=[output1.size(2), output1.size(3)], mode="nearest")
+        output1 = output1 + up2
+        output1 = self.merge1(output1)
 
-            out = [output1, output2, output3]
-            return out
-        else:
-            # names = list(input.keys())
-            input = list(input.values())
+        out = [output1, output2, output3]
+        return out
+    
+        # else:
+        #     # names = list(input.keys())
+        #     input = list(input.values())
 
-            output1 = self.output1(input[0])
-            output2 = self.output2(input[1])
-            output3 = self.output3(input[2])
+        #     output1 = self.output1(input[0])
+        #     output2 = self.output2(input[1])
+        #     output3 = self.output3(input[2])
 
-            up3 = F.interpolate(output3, size=[output2.size(2), output2.size(3)], mode="nearest")
-            output2 = output2 + up3
-            output2 = self.merge2(output2)
+        #     up3 = F.interpolate(output3, size=[output2.size(2), output2.size(3)], mode="nearest")
+        #     output2 = output2 + up3
+        #     output2 = self.merge2(output2)
 
-            up2 = F.interpolate(output2, size=[output1.size(2), output1.size(3)], mode="nearest")
-            output1 = output1 + up2
-            output1 = self.merge1(output1)
+        #     up2 = F.interpolate(output2, size=[output1.size(2), output1.size(3)], mode="nearest")
+        #     output1 = output1 + up2
+        #     output1 = self.merge1(output1)
 
-            out = [output1, output2, output3]
-            return out
+        #     out = [output1, output2, output3]
+        #     return out
 
 class MobileNetV1(nn.Module):
     def __init__(self):
