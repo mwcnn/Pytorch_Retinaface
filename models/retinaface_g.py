@@ -85,16 +85,31 @@ class RetinaFace(nn.Module):
             in_channels_stage2 * 8,
         ]
         out_channels = cfg['out_channel']
+        defian_layer = cfg['defian_layer']
         # self.FPN = FPN(in_channels_list, out_channels)
-        self.FPN = FPN(in_channels_list, out_channels)
+        self.bifpn = cfg['bifpn']
+        if self.bifpn:
+            self.FPN = BiFPN(in_channels_list, out_channels, defian_layer)
 
-        self.ssh1 = SSH(out_channels, out_channels)
-        self.ssh2 = SSH(out_channels, out_channels)
-        self.ssh3 = SSH(out_channels, out_channels)
+            self.ssh1 = SSH(out_channels, out_channels)
+            self.ssh2 = SSH(out_channels, out_channels)
+            self.ssh3 = SSH(out_channels, out_channels)
+            self.ssh4 = SSH(out_channels, out_channels)
+            self.ssh5 = SSH(out_channels, out_channels)
+            
+            self.fpn_num = 5
+        else:
+            self.FPN = FPN(in_channels_list, out_channels, defian_layer)
 
-        self.ClassHead = self._make_class_head(fpn_num=3, inchannels=cfg['out_channel'])
-        self.BboxHead = self._make_bbox_head(fpn_num=3, inchannels=cfg['out_channel'])
-        self.LandmarkHead = self._make_landmark_head(fpn_num=3, inchannels=cfg['out_channel'])
+            self.ssh1 = SSH(out_channels, out_channels)
+            self.ssh2 = SSH(out_channels, out_channels)
+            self.ssh3 = SSH(out_channels, out_channels)
+            
+            self.fpn_num = 3
+
+        self.ClassHead = self._make_class_head(fpn_num=self.fpn_num, inchannels=cfg['out_channel'])
+        self.BboxHead = self._make_bbox_head(fpn_num=self.fpn_num, inchannels=cfg['out_channel'])
+        self.LandmarkHead = self._make_landmark_head(self.fpn_num, inchannels=cfg['out_channel'])
 
     def _make_class_head(self, fpn_num=3, inchannels=64, anchor_num=2):
         classhead = nn.ModuleList()
@@ -123,10 +138,18 @@ class RetinaFace(nn.Module):
         fpn = self.FPN(out)
 
         # SSH
-        feature1 = self.ssh1(fpn[0])
-        feature2 = self.ssh2(fpn[1])
-        feature3 = self.ssh3(fpn[2])
-        features = [feature1, feature2, feature3]
+        if self.bifpn:
+            feature1 = self.ssh1(fpn[0])
+            feature2 = self.ssh2(fpn[1])
+            feature3 = self.ssh3(fpn[2])
+            feature4 = self.ssh2(fpn[3])
+            feature5 = self.ssh3(fpn[4])
+            features = [feature1, feature2, feature3, feature4, feature5]
+        else:
+            feature1 = self.ssh1(fpn[0])
+            feature2 = self.ssh2(fpn[1])
+            feature3 = self.ssh3(fpn[2])
+            features = [feature1, feature2, feature3]
 
         bbox_regressions = torch.cat([self.BboxHead[i](feature) for i, feature in enumerate(features)], dim=1)
         classifications = torch.cat([self.ClassHead[i](feature) for i, feature in enumerate(features)], dim=1)
