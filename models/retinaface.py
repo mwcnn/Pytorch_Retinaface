@@ -5,10 +5,11 @@ import torchvision.models._utils as _utils
 import torch.nn.functional as F
 from collections import OrderedDict
 
-from models.net import MobileNetV1 as MobileNetV1
+from models.net import MobileNetV1
+from models.ghostnet import ghostnet
+from models.mobilenetv3 import MobileNetV3
 from models.net import FPN as FPN
 from models.net import SSH as SSH
-
 
 
 class ClassHead(nn.Module):
@@ -22,6 +23,7 @@ class ClassHead(nn.Module):
         out = out.permute(0,2,3,1).contiguous()
         
         return out.view(out.shape[0], -1, 2)
+    
 
 class BboxHead(nn.Module):
     def __init__(self,inchannels=512,num_anchors=3):
@@ -33,6 +35,7 @@ class BboxHead(nn.Module):
         out = out.permute(0,2,3,1).contiguous()
 
         return out.view(out.shape[0], -1, 4)
+    
 
 class LandmarkHead(nn.Module):
     def __init__(self,inchannels=512,num_anchors=3):
@@ -44,6 +47,7 @@ class LandmarkHead(nn.Module):
         out = out.permute(0,2,3,1).contiguous()
 
         return out.view(out.shape[0], -1, 10)
+    
 
 class RetinaFace(nn.Module):
     def __init__(self, cfg = None, phase = 'train'):
@@ -68,6 +72,10 @@ class RetinaFace(nn.Module):
         elif cfg['name'] == 'Resnet50':
             import torchvision.models as models
             backbone = models.resnet50(pretrained=cfg['pretrain'])
+        elif cfg['name'] == 'ghostnet':
+            backbone = ghostnet()
+        elif cfg['name'] == 'mobilev3':
+            backbone = MobileNetV3()
 
         self.body = _utils.IntermediateLayerGetter(backbone, cfg['return_layers'])
         in_channels_stage2 = cfg['in_channel']

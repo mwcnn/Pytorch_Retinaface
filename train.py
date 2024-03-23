@@ -11,7 +11,6 @@ from layers.functions.prior_box import PriorBox
 import time
 import datetime
 import math
-from models.retinaface_g import RetinaFace
 
 parser = argparse.ArgumentParser(description='Retinaface Training')
 parser.add_argument('--training_dataset', default='./data/widerface/train/label.txt', help='Training dataset directory')
@@ -31,8 +30,10 @@ if not os.path.exists(args.save_folder):
     os.mkdir(args.save_folder)
 cfg = None
 if args.network == "mobile0.25":
+    from models.retinaface import RetinaFace
     cfg = cfg_mnet
 elif args.network == "resnet50":
+    from models.retinaface import RetinaFace
     cfg = cfg_re50
 elif args.network == "ghostnet":
     from models.retinaface_g import RetinaFace
