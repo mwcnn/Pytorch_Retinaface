@@ -4,11 +4,12 @@ import argparse
 import torch
 import torch.backends.cudnn as cudnn
 import numpy as np
-from data import cfg_mnet, cfg_re50
+from data import cfg_mnet, cfg_re50, cfg_gnet, cfg_mnetv3
 from layers.functions.prior_box import PriorBox
 from utils.nms.py_cpu_nms import py_cpu_nms
 import cv2
 from models.retinaface import RetinaFace
+from models.retinaface_g import RetinaFace as RetinaFaceExt
 from utils.box_utils import decode, decode_landm
 from utils.timer import Timer
 
@@ -16,7 +17,7 @@ from utils.timer import Timer
 parser = argparse.ArgumentParser(description='Retinaface')
 parser.add_argument('-m', '--trained_model', default='./weights/model/Resnet50_Final.pth',
                     type=str, help='Trained state_dict file path to open')
-parser.add_argument('--network', default='resnet50', help='Backbone network mobile0.25 or resnet50')
+parser.add_argument('--network', default='resnet50', help='Backbone network mobile0.25/resnet50/ghostnet/mobilev3')
 parser.add_argument('--origin_size', default=True, type=str, help='Whether use origin image size to evaluate')
 parser.add_argument('--save_folder', default='./widerface_evaluate/widerface_txt/', type=str, help='Dir to save txt results')
 parser.add_argument('--cpu', action="store_true", default=False, help='Use cpu inference')
@@ -74,8 +75,15 @@ if __name__ == '__main__':
         cfg = cfg_mnet
     elif args.network == "resnet50":
         cfg = cfg_re50
+    elif args.network == "ghostnet":
+        cfg = cfg_gnet
+    elif args.network == "mobilev3":
+        cfg = cfg_mnetv3
     # net and model
-    net = RetinaFace(cfg=cfg, phase = 'test')
+    if args.network == "mobile0.25" or args.network == "resnet50":
+        net = RetinaFace(cfg=cfg, phase = 'test')
+    else:
+        net = RetinaFaceExt(cfg=cfg, phase = 'test')
     net = load_model(net, args.trained_model, args.cpu)
     net.eval()
     print('Finished loading model!')

@@ -5,17 +5,18 @@ import torch.optim as optim
 import torch.backends.cudnn as cudnn
 import argparse
 import torch.utils.data as data
-from data import WiderFaceDetection, detection_collate, preproc, cfg_mnet, cfg_re50
+from data import WiderFaceDetection, detection_collate, preproc, cfg_mnet, cfg_re50, cfg_gnet, cfg_mnetv3
 from layers.modules import MultiBoxLoss
 from layers.functions.prior_box import PriorBox
 import time
 import datetime
 import math
 from models.retinaface import RetinaFace
+from models.retinaface_g import RetinaFace as RetinaFaceExt
 
 parser = argparse.ArgumentParser(description='Retinaface Training')
 parser.add_argument('--training_dataset', default='./data/widerface/train/label.txt', help='Training dataset directory')
-parser.add_argument('--network', default='resnet50', help='Backbone network mobile0.25 or resnet50')
+parser.add_argument('--network', default='resnet50', help='Backbone network mobile0.25/resnet50/ghostnet/mobilev3')
 parser.add_argument('--num_workers', default=4, type=int, help='Number of workers used in dataloading')
 parser.add_argument('--lr', '--learning-rate', default=1e-3, type=float, help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
@@ -34,6 +35,10 @@ if args.network == "mobile0.25":
     cfg = cfg_mnet
 elif args.network == "resnet50":
     cfg = cfg_re50
+elif args.network == "ghostnet":
+    cfg = cfg_gnet
+elif args.network == "mobilev3":
+    cfg = cfg_mnetv3
 
 rgb_mean = (104, 117, 123) # bgr order
 num_classes = 2
@@ -51,7 +56,10 @@ gamma = args.gamma
 training_dataset = args.training_dataset
 save_folder = args.save_folder
 
-net = RetinaFace(cfg=cfg)
+if args.network == "mobile0.25" or args.network == "resnet50":
+    net = RetinaFace(cfg=cfg)
+else:
+    net = RetinaFaceExt(cfg=cfg)
 print("Printing net...")
 print(net)
 
