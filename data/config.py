@@ -8,13 +8,13 @@ cfg_mnet = {
     'clip': False,
     'loc_weight': 2.0,
     'gpu_train': True,
-    'batch_size': 32, #default = 32
+    'batch_size': 8, #default = 32
     'ngpu': 1, #default = 1
     'epoch': 1, #default = 250
     'decay1': 190,
     'decay2': 220,
     'image_size': 640,
-    'pretrain': False,
+    'pretrain': True,
     'return_layers': {'stage1': 1, 'stage2': 2, 'stage3': 3},
     'in_channel': 32,
     'out_channel': 64,
@@ -42,44 +42,3 @@ cfg_re50 = {
     'defian_layer': True
 }
 
-cfg_gnet = {
-    'name': 'ghostnet',
-    'min_sizes': [[16, 32], [64, 128], [256, 512]],
-    'steps': [8, 16, 32],
-    'variance': [0.1, 0.2],
-    'clip': True,
-    'loc_weight': 2.0,
-    'gpu_train': True,
-    'batch_size': 16,
-    'ngpu': 1,
-    'epoch': 100,
-    'decay1': 190,
-    'decay2': 220,
-    'image_size': 640,
-    'pretrain': False,
-    'return_layers': {'blocks1': 1, 'blocks2': 2, 'blocks3': 3},
-    'in_channel': 32,
-    'out_channel': 64,
-    'defian_layer': True
-}
-
-cfg_mnetv3 = {
-    'name': 'mobilev3',
-    'min_sizes': [[16, 32], [64, 128], [256, 512]],
-    'steps': [8, 16, 32],
-    'variance': [0.1, 0.2],
-    'clip': True,
-    'loc_weight': 2.0,
-    'gpu_train': True,
-    'batch_size': 16,
-    'ngpu': 1,
-    'epoch': 350,
-    'decay1': 190,
-    'decay2': 220,
-    'image_size': 680,
-    'pretrain': False,
-    'return_layers': {'bneck1': 1, 'bneck2': 2, 'bneck3': 3},
-    'in_channel': 32,
-    'out_channel': 64,
-    'defian_layer': True
-}

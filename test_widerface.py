@@ -4,10 +4,11 @@ import argparse
 import torch
 import torch.backends.cudnn as cudnn
 import numpy as np
-from data import cfg_mnet, cfg_re50, cfg_gnet, cfg_mnetv3
+from data import cfg_mnet, cfg_re50
 from layers.functions.prior_box import PriorBox
 from utils.nms.py_cpu_nms import py_cpu_nms
 import cv2
+from models.retinaface import RetinaFace
 from utils.box_utils import decode, decode_landm
 from utils.timer import Timer
 
@@ -70,17 +71,9 @@ if __name__ == '__main__':
 
     cfg = None
     if args.network == "mobile0.25":
-        from models.retinaface import RetinaFace
         cfg = cfg_mnet
     elif args.network == "resnet50":
-        from models.retinaface import RetinaFace
         cfg = cfg_re50
-    elif args.network == "ghostnet":
-        from models.retinaface_g import RetinaFace
-        cfg = cfg_gnet
-    elif args.network == "mobilev3":
-        from models.retinaface_g import RetinaFace
-        cfg = cfg_mnetv3
     # net and model
     net = RetinaFace(cfg=cfg, phase = 'test')
     net = load_model(net, args.trained_model, args.cpu)
